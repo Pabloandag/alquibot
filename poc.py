@@ -35,7 +35,11 @@ if __name__ == "__main__":
     }
 
     for portal, parser in parsers.items():
-        ads = parser.get_ads()
+        try:
+            ads = parser.get_ads()
+        except Forbidden as e:
+            print(f"Could not parse portal {portal}. Skipping...")
+            continue
         seen_ids = file_handler.get_ids(portal=portal)
         unseen_ads = [ad for ad in ads if ad.id not in seen_ids]
         ids_to_add = list()
