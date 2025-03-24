@@ -1,4 +1,5 @@
 import requests
+import time
 from parser import ZonaPropParser, ArgenPropParser, CabaPropParser
 from db_handler import FileHandler
 
@@ -30,7 +31,7 @@ if __name__ == "__main__":
     parsers = {
         "zonaprop": ZonaPropParser(ZONAPROP_URL),
         "argenprop": ArgenPropParser(ARGENPROP_URL),
-        "cabaprop": CabaPropParser(CABAPROP_URL),
+        # "cabaprop": CabaPropParser(CABAPROP_URL),
     }
 
     for portal, parser in parsers.items():
@@ -39,7 +40,20 @@ if __name__ == "__main__":
         unseen_ads = [ad for ad in ads if ad.id not in seen_ids]
         ids_to_add = list()
         for ad in unseen_ads:
+            print(f"PARSER {parser.__class__.__name__} found URL: {ad.url}")
             response = bot.send_message_to_chat(CHAT_ID, ad.url)
             if response.status_code == 200:
                 ids_to_add.append(ad.id)
-        file_handler.add_ids(ids_to_add)
+            elif response.status_code == 429:
+                # Too many requests
+                print(f"Too many requests, sleeping for 1 second")
+                time.sleep(1)
+                response = bot.send_message_to_chat(CHAT_ID, ad.url)
+                if response.status_code == 200:
+                    print("Request retry was successful")
+                    ids_to_add.append(ad.id)
+                else:
+                    print("Could not send request")
+            else:
+                print("Failed to send message to chat with url {}".format(ad.url))
+        file_handler.add_ids(ids_to_add, portal)
