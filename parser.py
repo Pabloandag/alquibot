@@ -1,4 +1,6 @@
 import re
+import requests
+import cloudscraper
 from bs4 import BeautifulSoup, Tag
 from urllib.request import urlopen
 from abc import ABC, abstractmethod
@@ -61,8 +63,11 @@ class Parser(ABC):
         pass
 
     def _get_html(self):
-        page = urlopen(f"{self.BASE_URL}{self.filter_href}")
-        html = page.read().decode("utf-8")
+        endpoint = f"{self.BASE_URL}{self.filter_href}"
+        scraper = cloudscraper.create_scraper(
+            browser={"browser": "firefox", "platform": "windows", "mobile": False}
+        )
+        html = scraper.get(endpoint).text
         return html
 
     def get_post_cards(self) -> list[Tag]:
@@ -95,9 +100,15 @@ class CabaPropParser(Parser):
     PRICE_CONTAINER_TAG = "div"
     PRICE_CONTAINER_CLASS = "lc-price-normal"
 
-    def _get_html(self) -> str:
-        with open("cabaprop.html") as f:
-            html = f.read()
+    def _get_html(self):
+        endpoint = f"{self.BASE_URL}{self.filter_href}"
+        # scraper = cloudscraper.create_scraper(
+        #    interpreter="nodejs",
+        #    browser={"browser": "firefox", "platform": "windows", "mobile": False},
+        # )
+        # html = scraper.get(endpoint).text
+        response = requests.get(endpoint)
+        html = response.content.decode("utf-8")
         return html
 
     @classmethod
@@ -141,13 +152,6 @@ class ArgenPropParser(Parser):
     PRICE_CONTAINER_TAG = "p"
     PRICE_CONTAINER_CLASS = "card__price"
 
-    def _get_html(self) -> str:
-        # page = urlopen(f"{self.BASE_URL}{self.filter_href}")
-        # html = page.read().decode('utf-8')
-        with open("argenprop.html") as f:
-            html = f.read()
-        return html
-
     @classmethod
     def _get_post_id(cls, post: Tag) -> str:
         return post["id"]
@@ -183,13 +187,6 @@ class ZonaPropParser(Parser):
     POST_CONTAINER_CLASS = "postingsList-module__card-container"
     PRICE_CONTAINER_TAG = "div"
     PRICE_CONTAINER_CLASS = "postingPrices-module__price"
-
-    def _get_html(self) -> str:
-        # page = urlopen(f"{self.BASE_URL}{self.filter_href}")
-        # html = page.read().decode('utf-8')
-        with open("zonaprop.html") as f:
-            html = f.read()
-        return html
 
     @classmethod
     def _get_post_id(cls, post: Tag) -> str:

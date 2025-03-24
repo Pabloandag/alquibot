@@ -12,9 +12,9 @@ class DBHandler(ABC):
 
 
 class FileHandler(DBHandler):
-    ARGENPROP_FILE = "argenprop.txt"
-    CABAPROP_FILE = "cabaprop.txt"
-    ZONAPROP_FILE = "zonaprop.txt"
+    ARGENPROP_FILE = "db/argenprop.txt"
+    CABAPROP_FILE = "db/cabaprop.txt"
+    ZONAPROP_FILE = "db/zonaprop.txt"
 
     def get_ids(self, portal: str = None):
         ids = list()
