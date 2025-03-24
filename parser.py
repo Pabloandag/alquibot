@@ -22,6 +22,7 @@ class PriceNotFound(ParseException):
 class IdNotFound(ParseException):
     pass
 
+
 class Forbidden(ParseException):
     pass
 
