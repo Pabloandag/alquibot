@@ -1,6 +1,6 @@
 import requests
 import time
-from parser import ZonaPropParser, ArgenPropParser, CabaPropParser
+from parser import ZonaPropParser, ArgenPropParser, CabaPropParser, Forbidden
 from db_handler import FileHandler
 
 CHAT_ID = "YourChatId"
