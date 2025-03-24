@@ -22,6 +22,9 @@ class PriceNotFound(ParseException):
 class IdNotFound(ParseException):
     pass
 
+class Forbidden(ParseException):
+    pass
+
 
 @dataclass
 class AptAd:
@@ -67,7 +70,10 @@ class Parser(ABC):
         scraper = cloudscraper.create_scraper(
             browser={"browser": "firefox", "platform": "windows", "mobile": False}
         )
-        html = scraper.get(endpoint).text
+        response = scraper.get(endpoint)
+        if response.status_code == 403:
+            raise Forbidden("Request rejected, could be a scraper configuration issue")
+        html = response.text
         return html
 
     def get_post_cards(self) -> list[Tag]:
